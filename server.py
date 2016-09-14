@@ -7,7 +7,7 @@ sys.path.append('gen-py/image')
 from image import Images
 from image.ttypes import *
 
-from thrift.transport import TSSLSocket, TTransport
+from thrift.transport import TSocket, TSSLSocket, TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 
@@ -52,24 +52,28 @@ def db_get_book(isbn):
 
 class ImagesHandler:
     def getSellItemImages(self, id):
+        print("getSellItemImages(id=%s)" % id)
         c.execute("select images from Item where id = ?", (id,))
         return eval(c.fetchone()[0])
 
     def getBookCoverImage(self, isbn):
+        print("getBookCoverImage(isbn=%s)" % isbn)
         book = db_get_book(isbn)
         return book.image
 
     def postSellItemImages(self, id, images):
+        print("postSellItemImages(id=%s, images=...)" % id)
         c.execute("insert into Item values(?, ?)", id, repr(images))
         conn.commit()
 
     def queryIsbn(self, isbn):
+        print("queryIsbn(isbn=%s)" % isbn)
         book = db_get_book(isbn)
         return [book.title, book.author]
 
 handler = ImagesHandler()
 processor = Images.Processor(handler)
-transport = TSSLSocket.TSSLServerSocket("localhost", 9090)
+transport = TSSLSocket.TSSLServerSocket("app.handytextbook.com", 9092, "/etc/letsencrypt/live/app.handytextbook.com/fullchain.pem")
 tfactory = TTransport.TBufferedTransportFactory()
 pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 

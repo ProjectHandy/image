@@ -5,11 +5,11 @@ sys.path.append('gen-py/image')
 from image import Images
 
 from thrift import Thrift
-from thrift.transport import TSocket
+from thrift.transport import TSocket, TSSLSocket
 from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 
-transport = TTransport.TBufferedTransport(TSocket.TSocket('localhost', 9090))
+transport = TTransport.TBufferedTransport(TSSLSocket.TSSLSocket('app.handytextbook.com', 9092, validate=False))
 protocol = TBinaryProtocol.TBinaryProtocol(transport)
 client = Images.Client(protocol)
 transport.open()
